@@ -1,3 +1,8 @@
+"""
+Flask server for emotion detection web application.
+Provides routes for rendering the UI and processing emotion analysis requests.
+"""
+
 from flask import Flask, request, render_template
 from emotion_detection import emotion_detector
 
@@ -5,12 +10,27 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
+    """
+    Render the main index page.
+    Returns:
+        HTML template for the index page.
+    """
     return render_template("index.html")
 
 @app.route("/emotionDetector", methods=["GET"])
 def emotion_detector_route():
+    """
+    Process emotion detection requests from the frontend.
+
+    Returns:
+        str: A formatted string containing emotion scores and dominant emotion,
+             or an error message if input is invalid.
+    """
     text_to_analyze = request.args.get("textToAnalyze")
     result = emotion_detector(text_to_analyze)
+
+    if result["dominant_emotion"] is None:
+        return "Invalid text! Please try again!"
 
     anger = result["anger"]
     disgust = result["disgust"]
