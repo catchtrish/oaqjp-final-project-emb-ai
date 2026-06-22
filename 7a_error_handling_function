@@ -1,0 +1,46 @@
+import requests
+import json
+
+def emotion_detector(text_to_analyze):
+    url = "https://sn-watson-emotion.labs.skills.network/emotion"
+    headers = {"Content-Type": "application/json"}
+    payload = {"text": text_to_analyze}
+
+    response = requests.post(url, headers=headers, json=payload)
+
+    #Handle blank input or invalid input → status_code 400
+    if response.status_code == 400:
+        return {
+            "anger": None,
+            "disgust": None,
+            "fear": None,
+            "joy": None,
+            "sadness": None,
+            "dominant_emotion": None
+        }
+
+    #Normal valid response
+    response_data = json.loads(response.text)
+
+    # Extra safety: ensure key exists
+    if "emotionPredictions" not in response_data:
+        return {
+            "anger": None,
+            "disgust": None,
+            "fear": None,
+            "joy": None,
+            "sadness": None,
+            "dominant_emotion": None
+        }
+
+    emotions = response_data["emotionPredictions"][0]["emotion"]
+    dominant_emotion = max(emotions, key=emotions.get)
+
+    return {
+        "anger": emotions["anger"],
+        "disgust": emotions["disgust"],
+        "fear": emotions["fear"],
+        "joy": emotions["joy"],
+        "sadness": emotions["sadness"],
+        "dominant_emotion": dominant_emotion
+    }
